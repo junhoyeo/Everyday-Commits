@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000"
+    android:background="#040E27"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/tvResult"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fontFamily="@font/notosans_regular"
         android:gravity="center"
-        android:text="Loading..."
-        android:textColor="#fff"
+        android:text="로딩 중..."
+        android:textColor="#F3F1BC"
         android:textSize="40dp" />
 </LinearLayout>

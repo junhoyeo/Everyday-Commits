@@ -1,8 +1,10 @@
 package kr.hs.dimigo.everyday_commits;
 
+import android.graphics.Color;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.jsoup.Jsoup;
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         result = (TextView) findViewById(R.id.tvResult);
+        LinearLayout bgElement = (LinearLayout) findViewById(R.id.container);
 
         try {
             StrictMode.ThreadPolicy policy = new
@@ -33,10 +36,15 @@ public class MainActivity extends AppCompatActivity {
             int commits = Integer.parseInt(rect.attr("data-count"));
             System.out.println(commits);
 
-            if (commits == 0)
+            if (commits == 0) {
                 result.setText("오늘 커밋 없음");
-            else
+                result.setTextColor(Color.parseColor("#FFF2F2"));
+                bgElement.setBackgroundColor(Color.parseColor("#FF4F40"));
+            } else {
                 result.setText("오늘 커밋 " + commits + "개");
+                result.setTextColor(Color.parseColor("#FFF2F2"));
+                bgElement.setBackgroundColor(Color.parseColor("#04102A"));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
