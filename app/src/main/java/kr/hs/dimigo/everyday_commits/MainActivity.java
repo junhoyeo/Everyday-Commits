@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
 
         result = (TextView) findViewById(R.id.tvResult);
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             if (commits == 0)
                 result.setText("오늘 커밋 없음");
             else
-                result.setText("오늘 커밋\t" + commits + "개");
+                result.setText("오늘 커밋 " + commits + "개");
         } catch (IOException e) {
             e.printStackTrace();
         }
