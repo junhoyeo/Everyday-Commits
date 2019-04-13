@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             result.setTextColor(Color.parseColor("#F3F1BC"));
             bgElement.setBackgroundColor(Color.parseColor("#040E27"));
         } else {
-            result.setText("오늘 커밋 " + commits + "개");
+            result.setText("오늘 기여 " + commits + "개");
             result.setTextColor(Color.parseColor("#FFF2F2"));
             bgElement.setBackgroundColor(Color.parseColor("#04102A"));
         }
