@@ -1,7 +1,17 @@
 package kr.hs.dimigo.everyday_commits;
 
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.StrictMode;
+import android.os.SystemClock;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -14,11 +24,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     LinearLayout bgElement;
     TextView result;
     Button refresh;
+
+    public int getNotificationId() {
+        return (int) SystemClock.uptimeMillis();
+    }
 
     public int getCommits() {
         try {
@@ -53,6 +68,52 @@ public class MainActivity extends AppCompatActivity {
         refresh.setVisibility(View.VISIBLE);
     }
 
+    public void sendNotification(String text) {
+        int NOTIFICATION_ID = getNotificationId();
+        String CHANNEL_ID = "EC_channel_01";
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            CharSequence name = "EC_channel";
+            String Description = "This is everyday_commits channel";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+            mChannel.setDescription(Description);
+            mChannel.enableLights(true);
+            mChannel.setLightColor(Color.RED);
+            mChannel.enableVibration(true);
+            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            mChannel.setShowBadge(false);
+            notificationManager.createNotificationChannel(mChannel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("매일매일 커밋")
+                .setContentText(text);
+
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this)
+                .addParentStack(MainActivity.class)
+                .addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(resultPendingIntent);
+
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    public class AlarmReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int commits = getCommits();
+            if (commits == 0)
+                sendNotification("오늘 깃허브 커밋을 하지 않았어요!");
+            else
+                sendNotification("오늘 " + commits + "개의 커밋을 했어요!");
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +129,15 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
 
         updateStatus();
+
+        Calendar cal = Calendar.getInstance();
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pIntent = PendingIntent
+                .getService(this, 0, intent, 0);
+
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+                3600 * 1000, pIntent);
 
         refresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
