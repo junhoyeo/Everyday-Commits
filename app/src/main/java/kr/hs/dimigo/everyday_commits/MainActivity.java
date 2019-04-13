@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
         AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
-                3600 * 1000, pIntent);
+                60 * 1000, pIntent);
 
         refresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
