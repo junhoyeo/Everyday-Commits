@@ -1,14 +1,13 @@
 package kr.hs.dimigo.everyday_commits;
 
-import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
@@ -24,9 +23,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     LinearLayout bgElement;
@@ -105,6 +101,19 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
+    Handler handler = new Handler();
+    private Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            int commits = getCommits();
+            if (commits == 0)
+                sendNotification("오늘 깃허브 커밋을 하지 않았어요!");
+            else
+                sendNotification("오늘 " + commits + "개의 커밋을 했어요!");
+            handler.postDelayed(runnableCode, 1000 * 60 * 60);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,18 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
         updateStatus();
 
-        TimerTask notifyStatus = new TimerTask() {
-            public void run() {
-                int commits = getCommits();
-                if (commits == 0)
-                    sendNotification("오늘 깃허브 커밋을 하지 않았어요!");
-                else
-                    sendNotification("오늘 " + commits + "개의 커밋을 했어요!");
-            }
-        };
-
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(notifyStatus, 0, 1000 * 60 * 60);
+        handler.post(runnableCode);
 
         refresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
