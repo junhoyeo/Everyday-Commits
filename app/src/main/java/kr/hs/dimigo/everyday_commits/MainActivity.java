@@ -25,6 +25,8 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     LinearLayout bgElement;
@@ -103,17 +105,6 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
-    public class AlarmReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int commits = getCommits();
-            if (commits == 0)
-                sendNotification("오늘 깃허브 커밋을 하지 않았어요!");
-            else
-                sendNotification("오늘 " + commits + "개의 커밋을 했어요!");
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,14 +121,18 @@ public class MainActivity extends AppCompatActivity {
 
         updateStatus();
 
-        Calendar cal = Calendar.getInstance();
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        PendingIntent pIntent = PendingIntent
-                .getService(this, 0, intent, 0);
+        TimerTask notifyStatus = new TimerTask() {
+            public void run() {
+                int commits = getCommits();
+                if (commits == 0)
+                    sendNotification("오늘 깃허브 커밋을 하지 않았어요!");
+                else
+                    sendNotification("오늘 " + commits + "개의 커밋을 했어요!");
+            }
+        };
 
-        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
-                60 * 1000, pIntent);
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(notifyStatus, 0, 1000 * 60 * 60);
 
         refresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
